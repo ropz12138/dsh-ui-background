@@ -30,22 +30,14 @@ git clone https://github.com/ropz12138/dsh-ui-background.git \
   packages/client/ui-background
 ```
 
-Then complete the Harness-side registration:
-
-1. Add `{ "path": "./packages/client/ui-background" }` to `tsconfig.client.json` references.
-2. Add `"@deepseek-ai/dsh-client-ui-background": "workspace:^"` to `packages/bundle/web-app/package.json` dependencies.
-3. Add the `ui-background` row from [`cordis.patch.yml.example`](cordis.patch.yml.example) to `packages/bundle/web-app/cordis.patch.yml`.
-4. Add `'chat-background'` to `WEB_SETTINGS_NAMESPACES` in `packages/host/apiproxy/src/api-proxy.ts`.
-
-Install and build the Client artifacts, then start the web profile:
+Run the installer. It registers the package with the web profile, exposes its settings namespace, installs dependencies, and builds the Client artifacts:
 
 ```sh
-pnpm install
-pnpm run build:lib:client
+node packages/client/ui-background/scripts/install-into-harness.mjs
 pnpm dsh web
 ```
 
-A “Conversation background / 对话背景” row appears in General settings.
+The installer is idempotent. A “Conversation background / 对话背景” row appears in General settings.
 
 ## Model Experience
 

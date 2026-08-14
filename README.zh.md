@@ -30,22 +30,14 @@ git clone https://github.com/ropz12138/dsh-ui-background.git \
   packages/client/ui-background
 ```
 
-然后在 Harness 中完成以下注册：
-
-1. 在 `tsconfig.client.json` 的 `references` 中加入 `{ "path": "./packages/client/ui-background" }`。
-2. 在 `packages/bundle/web-app/package.json` 的 `dependencies` 中加入 `"@deepseek-ai/dsh-client-ui-background": "workspace:^"`。
-3. 将 [`cordis.patch.yml.example`](cordis.patch.yml.example) 中的 `ui-background` 行加入 `packages/bundle/web-app/cordis.patch.yml`。
-4. 将 `'chat-background'` 加入 `packages/host/apiproxy/src/api-proxy.ts` 中的 `WEB_SETTINGS_NAMESPACES`。
-
-安装并构建 Client 产物后启动 Web profile：
+运行安装脚本。它会将 package 注册到 web profile、暴露设置命名空间、安装依赖并构建 Client 产物：
 
 ```sh
-pnpm install
-pnpm run build:lib:client
+node packages/client/ui-background/scripts/install-into-harness.mjs
 pnpm dsh web
 ```
 
-随后会在 General 设置区看到“对话背景 / Conversation background”行。
+该脚本可重复运行。随后会在 General 设置区看到“对话背景 / Conversation background”行。
 
 ## Model Experience
 

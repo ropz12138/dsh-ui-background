@@ -40,6 +40,7 @@
   },
   "scripts": {
     "bundle": "tsdown",
+    "install:harness": "node scripts/install-into-harness.mjs",
     "watch": "tsdown --watch"
   },
   "license": "MIT",
