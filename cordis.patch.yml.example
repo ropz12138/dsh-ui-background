@@ -1,0 +1,16 @@
+# Example: mount dsh-ui-background into a deepseek-harness web profile.
+#
+# This is a *source-only* plugin. Before this patch applies, the package must
+# be present under `packages/client/ui-background/` (see readme Installation)
+# and the `chat-background` namespace must be added to WEB_SETTINGS_NAMESPACES
+# in `packages/host/apiproxy/src/api-proxy.ts`, or the browser cannot read the
+# persisted section.
+#
+# Merge the row below into `packages/bundle/web-app/cordis.patch.yml` under
+# the `- insert:` roster (near the other `id: ui-*` client rows), then add
+# `@deepseek-ai/dsh-client-ui-background` to the bundle's `package.json`
+# dependencies and rebuild the client shell.
+
+- insert:
+    - id: ui-background
+      name: '@deepseek-ai/dsh-client-ui-background'
