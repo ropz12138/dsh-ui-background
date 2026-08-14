@@ -36,6 +36,72 @@ async function updateJson(path, mutate) {
   await writeWhenChanged(path, source, `${JSON.stringify(value, null, 2)}\n`)
 }
 
+/** Find the closing bracket for an array while preserving JSONC comments and strings. */
+function closingBracket(source, opening) {
+  let depth = 0
+  let quote = false
+  let lineComment = false
+  let blockComment = false
+  for (let index = opening; index < source.length; index += 1) {
+    const char = source[index]
+    const next = source[index + 1]
+    if (lineComment) {
+      if (char === '\n') lineComment = false
+      continue
+    }
+    if (blockComment) {
+      if (char === '*' && next === '/') {
+        blockComment = false
+        index += 1
+      }
+      continue
+    }
+    if (quote) {
+      if (char === '\\') {
+        index += 1
+      } else if (char === '"') {
+        quote = false
+      }
+      continue
+    }
+    if (char === '/' && next === '/') {
+      lineComment = true
+      index += 1
+      continue
+    }
+    if (char === '/' && next === '*') {
+      blockComment = true
+      index += 1
+      continue
+    }
+    if (char === '"') {
+      quote = true
+    } else if (char === '[') {
+      depth += 1
+    } else if (char === ']') {
+      depth -= 1
+      if (depth === 0) return index
+    }
+  }
+  throw new Error('dsh-ui-background: unterminated tsconfig references array')
+}
+
+/** Add this plugin's reference to the JSONC tsconfig without stripping its comments. */
+async function updateTsconfig(path) {
+  const source = await readFile(path, 'utf8')
+  const marker = '"references": ['
+  const markerIndex = source.indexOf(marker)
+  if (markerIndex === -1) throw new Error('dsh-ui-background: tsconfig.client.json has no references array')
+  const opening = source.indexOf('[', markerIndex)
+  const closing = closingBracket(source, opening)
+  const references = source.slice(opening, closing)
+  const pathValue = `./${PLUGIN_RELATIVE_PATH}`
+  if (references.includes(`"${pathValue}"`)) return
+  const body = source.slice(0, closing).trimEnd()
+  const separator = body.endsWith(',') ? '' : ','
+  await writeWhenChanged(path, source, `${body}${separator}\n    { "path": "${pathValue}" }\n  ${source.slice(closing)}`)
+}
+
 /** Run one required Harness command from its checkout root. */
 function run(root, command, args) {
   const result = spawnSync(command, args, { cwd: root, stdio: 'inherit' })
@@ -52,12 +118,7 @@ if (resolve(root, PLUGIN_RELATIVE_PATH) !== pluginDir) {
   )
 }
 
-await updateJson(join(root, 'tsconfig.client.json'), (config) => {
-  if (!Array.isArray(config.references)) throw new Error('dsh-ui-background: tsconfig.client.json has no references array')
-  if (!config.references.some((reference) => reference?.path === `./${PLUGIN_RELATIVE_PATH}`)) {
-    config.references.push({ path: `./${PLUGIN_RELATIVE_PATH}` })
-  }
-})
+await updateTsconfig(join(root, 'tsconfig.client.json'))
 
 await updateJson(join(root, 'packages/bundle/web-app/package.json'), (config) => {
   if (config.dependencies === null || typeof config.dependencies !== 'object') {
