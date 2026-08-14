@@ -1,7 +1,7 @@
 # Example: mount dsh-ui-background into a deepseek-harness web profile.
 #
-# This is a *source-only* plugin. Before this patch applies, the package must
-# be present under `packages/client/ui-background/` (see readme Installation)
+# This is a *source-only* plugin. Clone this repository directly into
+# `packages/client/ui-background/` before this patch applies (see README).
 # and the `chat-background` namespace must be added to WEB_SETTINGS_NAMESPACES
 # in `packages/host/apiproxy/src/api-proxy.ts`, or the browser cannot read the
 # persisted section.

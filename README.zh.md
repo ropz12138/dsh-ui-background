@@ -21,6 +21,32 @@
 
 本插件不暴露任何模型可见工具：它是一个纯粹的 UI/设置功能。
 
+## 在 Harness 检出目录中安装
+
+本仓库是源码形式的 package：其 `workspace:^` 依赖由 DeepSeek Harness 检出目录提供，因此不能通过 npm 独立安装。请先把本仓库直接 clone 到 Harness 的 package 目录，再运行 `pnpm install`：
+
+```sh
+git clone https://github.com/ropz12138/dsh-ui-background.git \
+  packages/client/ui-background
+```
+
+然后在 Harness 中完成以下注册：
+
+1. 在 `tsconfig.client.json` 的 `references` 中加入 `{ "path": "./packages/client/ui-background" }`。
+2. 在 `packages/bundle/web-app/package.json` 的 `dependencies` 中加入 `"@deepseek-ai/dsh-client-ui-background": "workspace:^"`。
+3. 将 [`cordis.patch.yml.example`](cordis.patch.yml.example) 中的 `ui-background` 行加入 `packages/bundle/web-app/cordis.patch.yml`。
+4. 将 `'chat-background'` 加入 `packages/host/apiproxy/src/api-proxy.ts` 中的 `WEB_SETTINGS_NAMESPACES`。
+
+安装并构建 Client 产物后启动 Web profile：
+
+```sh
+pnpm install
+pnpm run build:lib:client
+pnpm dsh web
+```
+
+随后会在 General 设置区看到“对话背景 / Conversation background”行。
+
 ## Model Experience
 
 无，因为背景是一个浏览器/设置界面；这里不触及任何模型请求。
